@@ -1,0 +1,79 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    container_name: es_assistant_agent
+    restart: unless-stopped
+    
+    environment:
+      # Cluster and node configuration
+      - cluster.name=assistant-agent-cluster
+      - node.name=assistant-agent-node
+      - discovery.type=single-node
+      
+      # JVM堆内存设置
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      
+      # 开发环境关闭安全认证
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      
+      # 性能优化
+      - indices.memory.index_buffer_size=30%
+      - indices.fielddata.cache.size=40%
+      - indices.queries.cache.size=20%
+      
+      # 禁用GeoIP下载（加速启动）
+      - ingest.geoip.downloader.enabled=false
+      
+      # 允许跨域（方便调试）
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      
+      # 网络配置
+      - network.host=0.0.0.0
+      - http.port=9200
+      - transport.port=9300
+    
+    # 资源限制
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    
+    # 端口映射（使用9202避免与其他ES冲突）
+    ports:
+      - "9202:9200"  # REST API端口
+      - "9302:9300"  # 节点间通信端口
+    
+    # 数据卷挂载（所有数据都在项目目录下，会被gitignore）
+    volumes:
+      # 数据目录
+      - ./data:/usr/share/elasticsearch/data
+      # 插件目录（IK分词器等）
+      - ./plugins:/usr/share/elasticsearch/plugins
+      # 日志目录
+      - ./logs:/usr/share/elasticsearch/logs
+      # 备份目录
+      - ./backup:/usr/share/elasticsearch/backup
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    
+    # 网络
+    networks:
+      - assistant-agent-net
+
+networks:
+  assistant-agent-net:
+    driver: bridge
+    name: assistant_agent_network
