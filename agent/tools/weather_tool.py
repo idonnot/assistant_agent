@@ -4,7 +4,6 @@ from config.settings import WEATHER_API_KEY, WEATHER_API_URL
 from typing import Dict
 from es_loader.searcher import get_searcher
 
-@tool
 def get_adcode_by_location(query:str) -> Dict[str, str]:
     '''
     Return the adcode for the specified location.
@@ -20,8 +19,7 @@ def get_adcode_by_location(query:str) -> Dict[str, str]:
     return {"adcode": adcode, "location": query}
 
 
-@tool
-def get_live_weather(city:str) -> str:
+def get_live_weather(city:str) -> dict:
     '''
     Return the live weather for the specified city via 高德地图天气API. 
     Args:
@@ -58,21 +56,21 @@ def get_live_weather(city:str) -> str:
             return f"Error: 未查询到{city}的天气信息"
         
         live = weather_data[0]
-        city = live.get("city", "未知")
+        city_live = live.get("city", "未知")
         weather = live.get("weather", "未知")
         temperature = live.get("temperature", "未知")
         wind_dir = live.get("winddirection", "未知")
         wind_power = live.get("windpower", "未知")
         report_time = live.get("reporttime","未知")
         
-        return (
-            f"{city}实时天气：\n"
-            f"天气：{weather}\n"
-            f"温度：{temperature}℃\n"
-            f"风向：{wind_dir}\n"
-            f"风力：{wind_power}级\n"
-            f"report_time: {report_time}"
-        )
+        return {
+            "city": city_live,
+            "weather": weather,
+            "temperature": int(temperature),
+            "wind_direction": wind_dir,
+            "wind_power": wind_power,
+            "report_time": report_time
+        }
     
     except requests.exceptions.Timeout:
         return f"Error: 调用高德API超时({city})"

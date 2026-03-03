@@ -21,15 +21,15 @@ class LocationSearcher:
         should_conditions = [
             {
                 "match": {
-                    "full_name": {
+                    "name": {
                         "query": query,
-                        "boost": 3
+                        "boost":4
                     }
                 }
             },
             {
                 "match": {
-                    "name": {
+                    "full_name": {
                         "query": query,
                         "boost": 2
                     }
@@ -68,7 +68,7 @@ class LocationSearcher:
             },
             "sort": [
                 {"_score": "desc"},
-                {"level_rank": "desc"}
+                # {"level_rank": "desc"}
             ],
             "size": top_k
         }
@@ -80,16 +80,17 @@ class LocationSearcher:
         """
         Get the adcode for a given location text, prioritizing district > city > province for weather queries
         """
-        results = self.search(location_text, top_k=5)
+        results = self.search(location_text, top_k=3)
         
         if not results:
             return None
         
-        # district > city > province
-        for level in ['district', 'city', 'province']:
-            for result in results:
-                if result['level'] == level:
-                    return result['adcode']
+        
+        # # district > city > province
+        # for level in ['district', 'city', 'province']:
+        #     for result in results:
+        #         if result['level'] == level:
+        #             return result['adcode']
         
         return results[0]['adcode']
     
@@ -102,25 +103,6 @@ class LocationSearcher:
         
         if not results:
             return None
-        
-        # Priority: district > city > province
-        for result in results:
-            if result['level'] == 'district':
-                return {
-                    'adcode': result['adcode'],
-                    'full_name': result['full_name'],
-                    'citycode': result.get('citycode', ''),
-                    'level': 'district'
-                }
-        
-        for result in results:
-            if result['level'] == 'city':
-                return {
-                    'adcode': result['adcode'],
-                    'full_name': result['full_name'],
-                    'citycode': result.get('citycode', ''),
-                    'level': 'city'
-                }
         
         # Province
         return {

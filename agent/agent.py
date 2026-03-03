@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from config.settings import LLM_MODEL, LLM_API_KEY, LLM_BASE_URL
-from agent.tools.weather_tool import get_adcode_by_location, get_live_weather
+from agent.skills.weather_skill import get_weather_by_location
 import pprint
 
 class WeatherAgent:
@@ -16,7 +16,7 @@ class WeatherAgent:
 
         self.graph = create_agent(
             model=self.llm,
-            tools=[get_adcode_by_location,get_live_weather],
+            tools=[get_weather_by_location],
             system_prompt='''You are an helpful assistant.''',
             checkpointer=InMemorySaver(),
         )
