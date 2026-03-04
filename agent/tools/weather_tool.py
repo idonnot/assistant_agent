@@ -4,28 +4,28 @@ from config.settings import WEATHER_API_KEY, WEATHER_API_URL
 from typing import Dict
 from es_loader.searcher import get_searcher
 
-def get_adcode_by_location(query:str) -> Dict[str, str]:
+def get_adcode_by_location(location:str) -> Dict[str, str]:
     '''
     Return the adcode for the specified location.
-    Args:
-        query: location name (包括省、市、区县的单独或组合名称，如"杭州市"、"西湖区"、"浙江省杭州市西湖区")
+    Args:location: 
+        location name (can be a province, city, district individually or in combination, e.g., "Hangzhou", "Xihu District",
+                "Xihu District, Hangzhou, Zhejiang")
     Returns:
-        adcode信息字典, 失败时返回友好提示
+        AReturns a structured dict with 'status', 'adcode', and optional 'error' or 'candidates'.
     '''
     searcher = get_searcher()
-    adcode = searcher.get_adcode(query)
-    if not adcode:
-        return {"error": f"未找到位置 '{query}' 的adcode"}
-    return {"adcode": adcode, "location": query}
+    result = searcher.get_adcode(location)
+    return result
+    
 
 
-def get_live_weather(city:str) -> dict:
+def get_live_weather(location:str) -> dict:
     '''
-    Return the live weather for the specified city via 高德地图天气API. 
+    Return the live weather for the specified city via the Amap Weather API.
     Args:
-        city: 城市名称(e.g.杭州市,无法接收复杂的省、市、区县的组合名称，如"杭州市上城区")或城市编码adcode(e.g."330100"->"杭州市")
+        location: Location name in Chinese (e.g., ""Hangzhou"";complex province-city-district combinations such as "Xihu District, Hangzhou" are not supported) or city adcode (e.g., "330100" → Hangzhou).
     Returns:
-        格式化的天气信息字符串，失败时返回友好提示
+        Formatted weather information dictionary on success; user-friendly error message on failure.
     '''
     api_key = WEATHER_API_KEY
     if not api_key:
@@ -35,7 +35,7 @@ def get_live_weather(city:str) -> dict:
 
     params: Dict[str, str] = {
         "key": api_key,          # API Key
-        "city": city,            # adcode
+        "city": location,            # adcode
         "extensions": "base",    # base=实时天气，all=预报天气
         "output": "json"         # 返回格式
     }
@@ -53,15 +53,15 @@ def get_live_weather(city:str) -> dict:
         
         weather_data = result.get("lives", [])
         if not weather_data:
-            return f"Error: 未查询到{city}的天气信息"
+            return f"Error: 未查询到{location}的天气信息"
         
         live = weather_data[0]
-        city_live = live.get("city", "未知")
-        weather = live.get("weather", "未知")
-        temperature = live.get("temperature", "未知")
-        wind_dir = live.get("winddirection", "未知")
-        wind_power = live.get("windpower", "未知")
-        report_time = live.get("reporttime","未知")
+        city_live = live.get("city", "Unknow")
+        weather = live.get("weather", "Unknow")
+        temperature = live.get("temperature", "Unknow")
+        wind_dir = live.get("winddirection", "Unknow")
+        wind_power = live.get("windpower", "Unknow")
+        report_time = live.get("reporttime","Unknow")
         
         return {
             "city": city_live,
@@ -73,7 +73,7 @@ def get_live_weather(city:str) -> dict:
         }
     
     except requests.exceptions.Timeout:
-        return f"Error: 调用高德API超时({city})"
+        return f"Error: 调用高德API超时({location})"
     except requests.exceptions.RequestException as e:
         return f"Error: 调用高德API失败 - {str(e)}"
     except Exception as e:

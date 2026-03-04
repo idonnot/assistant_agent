@@ -1,6 +1,5 @@
 from agent.agent import WeatherAgent
 
-
 def main():
     agent = WeatherAgent()
 

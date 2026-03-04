@@ -23,7 +23,7 @@ class LocationSearcher:
                 "match": {
                     "name": {
                         "query": query,
-                        "boost":4
+                        "boost":5
                     }
                 }
             },
@@ -78,21 +78,28 @@ class LocationSearcher:
     
     def get_adcode(self, location_text):
         """
-        Get the adcode for a given location text, prioritizing district > city > province for weather queries
+        Get the adcode for a given location text.
+        Returns a structured dict with 'status', 'adcode', and optional 'error' or 'candidates'.
         """
         results = self.search(location_text, top_k=3)
         
         if not results:
-            return None
+            return {"status": "not_found", "error": f"未找到位置 '{location_text}'"}
         
+        duplicate_results = self.check_duplicate_city(results)
         
-        # # district > city > province
-        # for level in ['district', 'city', 'province']:
-        #     for result in results:
-        #         if result['level'] == level:
-        #             return result['adcode']
+        if duplicate_results['status'] == 'ambiguous':
+            return {
+                "status": "ambiguous",
+                "error": f"位置 '{location_text}' 存在歧义，可能指以下位置中的一个：{', '.join(duplicate_results['candidates'])}。请提供更具体的位置信息（例如添加上级行政区）以获取准确的天气信息。",
+                "candidates": duplicate_results['candidates']
+            }
         
-        return results[0]['adcode']
+        return {
+            "status": "ok",
+            "adcode": results[0]['adcode'],
+            "location": results[0]['full_name']
+        }
     
 
     def get_weather_location(self, location_text):
@@ -110,6 +117,31 @@ class LocationSearcher:
             'full_name': results[0]['full_name'],
             'citycode': '',
             'level': 'province'
+        }
+    
+    def check_duplicate_city(self, top_k_list):
+        # get the highest score from the top_k results
+        max_score = top_k_list[0]["score"]
+
+        # get all results that have a score close to the max score (e.g., within 0.01)
+        top_results = [
+            r for r in top_k_list
+            if abs(r["score"] - max_score) < 0.01
+        ]
+
+        # if there are multiple results with similar high scores, it may indicate ambiguity
+        if len(top_results) > 1:
+            return {
+                "status": "ambiguous",
+                "candidates": [
+                    r["full_name"] for r in top_results
+                ]
+            }
+
+        # only one clear winner
+        return {
+            "status": "ok",
+            "adcode": top_k_list[0]["adcode"]
         }
     
     def get_by_adcode(self, adcode):

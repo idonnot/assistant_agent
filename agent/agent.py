@@ -1,22 +1,31 @@
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
-from config.settings import LLM_MODEL, LLM_API_KEY, LLM_BASE_URL
-from agent.skills.weather_skill import get_weather_by_location
+from config.settings import LLM_MODEL, LLM_API_KEY, LLM_BASE_URL, OLLAMA_MODEL, OLLAMA_BASE_URL
+from agent.skills.weather_skill import get_real_time_weather
 import pprint
+from agent.prompts.prompt_loader import load_system_prompt
+
 
 class WeatherAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(
-            model = LLM_MODEL,
-            api_key = LLM_API_KEY,
-            base_url = LLM_BASE_URL,
-            temperature = 0.2,
+        # self.llm = ChatOpenAI(
+        #     model = LLM_MODEL,
+        #     api_key = LLM_API_KEY,
+        #     base_url = LLM_BASE_URL,
+        #     temperature = 0.2,
+        # )
+
+        self.llm = ChatOllama(
+            model=OLLAMA_MODEL,
+            base_url=OLLAMA_BASE_URL,
+            temperature=0.2,
         )
 
         self.graph = create_agent(
             model=self.llm,
-            tools=[get_weather_by_location],
+            tools=[get_real_time_weather],
             system_prompt='''You are an helpful assistant.''',
             checkpointer=InMemorySaver(),
         )

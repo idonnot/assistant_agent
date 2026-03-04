@@ -2,20 +2,44 @@
 from agent.tools.weather_tool import get_adcode_by_location, get_live_weather
 from langchain.tools import tool
 
-@tool
-def get_weather_by_location(location: str) -> dict:
+@tool("real_time_weather")
+def get_real_time_weather(location: str) -> dict:
     '''
-    查询指定位置实时天气，必须用于实时天气问题，而非天气预报。
+    Retrieve real-time (current) weather data for a specified location.
+
+    This tool MUST be used only for real-time weather queries.
+    It MUST NOT be used for weather forecast or future weather inquiries.
+
+    The tool returns structured weather data.
+    When generating the final answer, you MUST:
+        - Clearly describe the current weather condition
+        - Include the current temperature
+        - Provide appropriate clothing advice
+
     Args:
-        location: 位置名称（如"杭州市"、"西湖区"、"浙江省杭州市西湖区"）或是adcode（如"330100"->"杭州市"）
+        location: Name of the location (e.g., "Hangzhou", "Xihu District",
+                "Xihu District, Hangzhou, Zhejiang")
+
     Returns:
-        格式化的天气信息字符串，失败时返回友好提示
+        A formatted weather information dictionary.
+        If the query fails, return a clear and user-friendly error message.
     '''
+    # Step 1: Get adcode for the location
     adcode_result = get_adcode_by_location(location)
-    if "error" in adcode_result:
-        return adcode_result["error"]
     
-    adcode = adcode_result["adcode"]
+    # Step 2: Handle different status codes
+    if adcode_result['status'] == 'ambiguous':
+        # Location is ambiguous, ask for clarification
+        return {"error": adcode_result['error']}
+    elif adcode_result['status'] == 'not_found':
+        # Location not found
+        return {"error": adcode_result['error']}
+    elif adcode_result['status'] != 'ok':
+        # Unexpected status
+        return {"error": f"未知错误：{adcode_result}"}
+    
+    # Step 3: Get weather data using the adcode
+    adcode = adcode_result['adcode']
     weather_result = get_live_weather(adcode)
     
     return weather_result
