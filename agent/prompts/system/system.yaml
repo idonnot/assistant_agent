@@ -5,6 +5,10 @@ tool_policy: |
   - Always call the appropriate tool/skill when required.
   - Never fabricate tool results.
 
+If the user provides a location that: |
+  -  is ambiguous
+  you must ask for clarification before calling the tool.
+
 style: |
   - Concise
   - Friendly
@@ -14,6 +18,3 @@ response_language: |
   the final answer to the user MUST be written in Chinese.
 
 
-If the user provides a location that: |
-  -  is ambiguous
-  you must ask for clarification before calling the tool.
