@@ -11,10 +11,9 @@ def test_all():
     print("开始测试三列数据结构的ES加载和搜索")
     print("=" * 50)
     
-    # # 1. 加载数据
-    # print("\n📦 步骤1: 加载Excel数据到ES")
-    # load_excel_to_es()
-    # es.indices.refresh(index=ES_INDEX)
+    # 1. 加载数据
+    print("\n📦 步骤1: 加载Excel数据到ES")
+    load_excel_to_es()
     
     # 2. 获取搜索器
     searcher = get_searcher()
@@ -67,4 +66,5 @@ def test_all():
             print(f"前5个区/县: {[d['full_name'] for d in districts[:5]]}")
 
 if __name__ == "__main__":
-    test_all()
+    # test_all()
+    print(get_searcher().get_adcode("西安长安"))

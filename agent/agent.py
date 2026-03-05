@@ -26,7 +26,7 @@ class WeatherAgent:
         self.graph = create_agent(
             model=self.llm,
             tools=[get_real_time_weather],
-            system_prompt='''You are an helpful assistant.''',
+            system_prompt=load_system_prompt(),
             checkpointer=InMemorySaver(),
         )
 

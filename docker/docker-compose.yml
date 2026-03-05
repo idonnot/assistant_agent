@@ -72,8 +72,3 @@ services:
     # 网络
     networks:
       - assistant-agent-net
-
-networks:
-  assistant-agent-net:
-    driver: bridge
-    name: assistant_agent_network

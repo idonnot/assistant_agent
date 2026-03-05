@@ -19,56 +19,84 @@ class LocationSearcher:
         """
         
         should_conditions = [
-            {
-                "match": {
-                    "name": {
-                        "query": query,
-                        "boost":5
-                    }
-                }
-            },
-            {
-                "match": {
-                    "full_name": {
-                        "query": query,
-                        "boost": 2
-                    }
-                }
-            },
-            {
-                "prefix": {
-                    "name": {
-                        "value": query,
-                        "boost": 1.5
-                    }
-                }
-            },
+            # 层1：adcode精确匹配（最高权重）
             {
                 "term": {
                     "adcode": {
                         "value": query,
-                        "boost": 5
+                        "boost": 6
+                    }
+                }
+            },
+            
+            # # 层2：cross_fields匹配（关键改进）
+            # {
+            #     "multi_match": {
+            #         "query": query,
+            #         "fields": ["full_name^3", "name^2"],
+            #         "type": "cross_fields",
+            #         "operator": "and",  
+            #         "boost": 5
+            #     }
+            # },
+            
+            # 层3：full_name AND匹配（要求所有词都出现）
+            {
+                "match": {
+                    "full_name": {
+                        "query": query,
+                        "analyzer": "ik_smart",  # 使用ik_smart减少重复分词导致的高分
+                        "operator": "and",
+                        "boost": 4
+                    }
+                }
+            },
+            
+            # 层4：name动词or匹配（单字段容错）
+            {
+                "match": {
+                    "name": {
+                        "query": query,
+                        "analyzer": "ik_smart",
+                        "operator": "or",
+                        "boost": 3
+                    }
+                }
+            },
+            
+            # # 层5：前缀匹配
+            # {
+            #     "prefix": {
+            #         "name": {
+            #             "value": query,
+            #             "analyzer": "ik_smart",
+            #             "boost": 2
+            #         }
+            #     }
+            # },
+            
+            # 层6：模糊匹配（容错）
+            {
+                "match": {
+                    "full_name": {
+                        "query": query,
+                        "analyzer": "ik_smart",
+                        "fuzziness": "AUTO",
+                        "boost": 1
                     }
                 }
             }
         ]
         
-        # filter by level if specified
-        filters = []
-        if level:
-            filters.append({"term": {"level": level}})
-        
         search_body = {
             "query": {
                 "bool": {
                     "should": should_conditions,
-                    "filter": filters,
                     "minimum_should_match": 1
                 }
             },
             "sort": [
-                {"_score": "desc"},
-                # {"level_rank": "desc"}
+                {"_score": "desc"}
             ],
             "size": top_k
         }
@@ -81,10 +109,11 @@ class LocationSearcher:
         Get the adcode for a given location text.
         Returns a structured dict with 'status', 'adcode', and optional 'error' or 'candidates'.
         """
-        results = self.search(location_text, top_k=3)
+        results = self.search(location_text, top_k=5)
         
         if not results:
             return {"status": "not_found", "error": f"未找到位置 '{location_text}'"}
+        print(results)
         
         duplicate_results = self.check_duplicate_city(results)
         
@@ -98,7 +127,8 @@ class LocationSearcher:
         return {
             "status": "ok",
             "adcode": results[0]['adcode'],
-            "location": results[0]['full_name']
+            "location": results[0]['full_name'],
+            "level": results[0]['level']
         }
     
 
@@ -126,7 +156,7 @@ class LocationSearcher:
         # get all results that have a score close to the max score (e.g., within 0.01)
         top_results = [
             r for r in top_k_list
-            if abs(r["score"] - max_score) < 0.01
+            if abs(r["score"] - max_score) < 2
         ]
 
         # if there are multiple results with similar high scores, it may indicate ambiguity

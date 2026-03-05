@@ -7,9 +7,9 @@ MAPPING = {
         "settings": {
             "analysis": {
                 "analyzer": {
-                    "ik_smart_analyzer": {
+                    "ik_max_word_analyzer": {
                         "type": "custom",
-                        "tokenizer": "ik_smart"
+                        "tokenizer": "ik_max_word"  # 改用ik_max_word产生最细粒度的分词
                     }
                 }
             }
@@ -19,7 +19,7 @@ MAPPING = {
                 # BASE FIELDS
                 "name": {
                     "type": "text",
-                    "analyzer": "ik_smart_analyzer",
+                    "analyzer": "ik_max_word_analyzer",
                     "fields": {
                         "keyword": {"type": "keyword"}
                     }
@@ -48,7 +48,7 @@ MAPPING = {
                 # full name field for better search relevance, analyzed with IK for flexible matching
                 "full_name": {
                     "type": "text",
-                    "analyzer": "ik_smart_analyzer",
+                    "analyzer": "ik_max_word_analyzer",
                     "fields": {
                         "keyword": {"type": "keyword"}
                     }
@@ -86,6 +86,7 @@ def load_excel_to_es(excel_path=None):
     docs = generate_documents(df)  # generate documents and build parent-child relationships
     
     bulk_insert(es, docs, ES_INDEX)  # bulk insert documents into ES
+    es.indices.refresh(index=ES_INDEX)
     
 
 def preprocess_data(df):
