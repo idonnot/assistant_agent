@@ -26,3 +26,8 @@ __pycache__/
 
 *.csv
 *.parquet
+
+# Chroma 向量数据库
+chroma_db/
+*.sqlite3
+*.db
