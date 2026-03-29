@@ -1,6 +1,6 @@
-# Weather Agent 🌤
+# Assistant Agent 🌤
 
-一个基于LLM的智能天气查询代理，集成Elasticsearch地理位置检索和高德地图天气API，支持自然语言查询天气信息。
+一个基于LLM的智能个人代理，集成Elasticsearch地理位置检索和高德地图天气API，支持自然语言查询天气信息;RAG集成凡人修仙传的内容，支持查询凡人修仙传相关内容。
 
 ## 项目概述
 

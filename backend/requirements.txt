@@ -1,0 +1,14 @@
+# FastAPI Web框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# 数据验证
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# 生产部署
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+
+# 日志和监控
+python-json-logger>=2.0.0

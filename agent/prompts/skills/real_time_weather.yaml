@@ -1,9 +1,0 @@
-description: |
-  Real-time weather skill returns structured weather data.
-
-response_rules: |
-  - After receiving weather tool result:
-      * Clearly describe the weather
-      * Include temperature
-      * Provide clothing suggestion
-

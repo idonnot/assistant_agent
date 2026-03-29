@@ -5,10 +5,16 @@ from langchain.tools import tool
 @tool("real_time_weather")
 def get_real_time_weather(location: str) -> dict:
     '''
-    Retrieve real-time (current) weather data for a specified location.
-
+    Use this tool when the user asks about the real-time weather.
     This tool MUST be used only for real-time weather queries.
     It MUST NOT be used for weather forecast or future weather inquiries.
+
+    Use this tool when the user asks about:
+    - weather
+    - temperature
+    - rain
+    - wind
+    - clothing suggestions
 
     The tool returns structured weather data.
     When generating the final answer, you MUST:
