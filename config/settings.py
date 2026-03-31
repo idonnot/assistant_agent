@@ -22,6 +22,7 @@ ADCODE_EXCEL_PATH = os.path.join(DATA_DIR, "AMap_adcode_citycode.xlsx")
 
 PROMPT_DIR = os.path.join(BASE_DIR, "agent", "prompts")
 
+# Fanren Config
 CHROMA_DIR = os.path.join(DATA_DIR, "chroma_db")
 DOC_CHUNKS_DIR = os.path.join(DATA_DIR, "doc_chunks")
 FANREN_NOVEL_DIR = os.path.join(DATA_DIR, "fanren_novel")
@@ -34,5 +35,12 @@ WEATHER_API_URL = os.getenv("AMAP_WEATHER_URL")
 
 
 # RAG Configuration
-VECTOR_DB_MODEL = "BAAI/bge-small-zh-v1.5"
-RERANK_MODEL = "BAAI/bge-reranker-base"
+MODEL_DIR = os.path.join(BASE_DIR, "rag", "model")
+RERANK_MODEL = os.path.join(MODEL_DIR, "bge-reranker-base")
+VECTOR_DB_MODEL = os.path.join(MODEL_DIR, "bge-small-zh-v1.5")
+
+# GitHub MCP Cinfigutation
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+GITHUB_MCP_ENABLED = os.getenv("GITHUB_MCP_ENABLED", "true").lower() == "true"
+
+MCP_CONFIG_PATH = os.path.join(BASE_DIR, "config", "mcp_config.json")

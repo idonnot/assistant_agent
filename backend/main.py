@@ -1,6 +1,6 @@
 """
 Weather Agent FastAPI Backend
-提供REST API和WebSocket接口与WeatherAgent进行交互
+提供REST API和WebSocket接口与MyAgent进行交互
 """
 
 from fastapi import FastAPI, WebSocket, HTTPException

@@ -1,51 +1,64 @@
 
-from agent.tools.weather_tool import get_adcode_by_location, get_live_weather
+from agent.services.weather_tool import get_adcode_by_location, get_live_weather
 from langchain.tools import tool
+from ..schemas.tool_schema import ToolResponse
+
 
 @tool("real_time_weather")
-def get_real_time_weather(location: str) -> dict:
+def get_real_time_weather(location: str) -> str:
     '''
     Use this tool when the user asks about the real-time weather.
-    This tool MUST be used only for real-time weather queries.
-    It MUST NOT be used for weather forecast or future weather inquiries.
-
-    Use this tool when the user asks about:
-    - weather
-    - temperature
-    - rain
-    - wind
-    - clothing suggestions
-
-    The tool returns structured weather data.
-    When generating the final answer, you MUST:
-        - Clearly describe the current weather condition
-        - Include the current temperature
-        - Provide appropriate clothing advice
-
-    Args:
-        location: Name of the location (e.g., "Hangzhou", "Xihu District",
-                "Xihu District, Hangzhou, Zhejiang")
-
-    Returns:
-        A formatted weather information dictionary.
-        If the query fails, return a clear and user-friendly error message.
     '''
-    # Step 1: Get adcode for the location
-    adcode_result = get_adcode_by_location(location)
-    
-    # Step 2: Handle different status codes
-    if adcode_result['status'] == 'ambiguous':
-        # Location is ambiguous, ask for clarification
-        return {"error": adcode_result['error']}
-    elif adcode_result['status'] == 'not_found':
-        # Location not found
-        return {"error": adcode_result['error']}
-    elif adcode_result['status'] != 'ok':
-        # Unexpected status
-        return {"error": f"未知错误：{adcode_result}"}
-    
-    # Step 3: Get weather data using the adcode
-    adcode = adcode_result['adcode']
-    weather_result = get_live_weather(adcode)
-    
-    return weather_result
+
+    try:
+        # Step 1: Get adcode
+        adcode_result = get_adcode_by_location(location)
+
+        # Step 2
+        status = adcode_result.get("status")
+
+        if status == "ambiguous":
+            return ToolResponse(
+                status="error",
+                message="Location is ambiguous, please clarify",
+                data=adcode_result
+            ).model_dump_json()
+
+        elif status == "not_found":
+            return ToolResponse(
+                status="error",
+                message="Location not found",
+                data=adcode_result
+            ).model_dump_json()
+
+        elif status != "ok":
+            return ToolResponse(
+                status="error",
+                message=f"Unexpected error: {adcode_result}",
+                data=None
+            ).model_dump_json()
+
+        # Step 3
+        adcode = adcode_result["adcode"]
+        weather_result = get_live_weather(adcode)
+
+        if isinstance(weather_result, str):
+            return ToolResponse(
+                status="error",
+                message=weather_result,
+                data=None
+            ).model_dump_model_dump_json()
+
+        # Step 4
+        return ToolResponse(
+            status="success",
+            message=None,
+            data=weather_result
+        ).model_dump_json()
+
+    except Exception as e:
+        return ToolResponse(
+            status="error",
+            message=str(e),
+            data=None
+        ).model_dump_json()

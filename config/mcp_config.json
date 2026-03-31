@@ -1,0 +1,12 @@
+
+{
+  "servers": {
+    "github": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "enabled": true,
+      "description": "GitHub MCP Server for repository operations"
+    }
+  }
+}

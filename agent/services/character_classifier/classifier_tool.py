@@ -1,4 +1,4 @@
-from agent.tools.character_classifier.basic_character_classifier import BasicCharacterClassifier
+from agent.services.character_classifier.basic_character_classifier import BasicCharacterClassifier
 from langchain.tools import tool
 
 def classify_fanren_character(query: str) -> dict:

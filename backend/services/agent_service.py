@@ -1,5 +1,5 @@
 """
-Agent服务层：包装WeatherAgent，提供与FastAPI集成的接口
+Agent服务层：包装MyAgent，提供与FastAPI集成的接口
 """
 
 import sys
@@ -7,7 +7,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from agent.agent import WeatherAgent
+from agent.agent import MyAgent
 from typing import Dict, List
 import logging
 
@@ -15,20 +15,20 @@ logger = logging.getLogger(__name__)
 
 
 class AgentService:
-    """WeatherAgent服务包装类"""
+    """MyAgent服务包装类"""
     
     def __init__(self):
-        """初始化WeatherAgent实例"""
+        """初始化MyAgent实例"""
         try:
-            self.agent = WeatherAgent()
-            logger.info("WeatherAgent initialized successfully")
+            self.agent = MyAgent()
+            logger.info("MyAgent initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize WeatherAgent: {e}")
+            logger.error(f"Failed to initialize MyAgent: {e}")
             raise
     
     def process_message(self, message: str, thread_id: str = "default_user") -> Dict:
         """
-        处理用户消息，与WeatherAgent交互
+        处理用户消息，与MyAgent交互
         
         Args:
             message: 用户输入的消息
@@ -40,7 +40,7 @@ class AgentService:
         try:
             logger.info(f"Processing message: {message} (thread_id: {thread_id})")
             
-            # 调用WeatherAgent的run方法
+            # 调用MyAgent的run方法
             response = self.agent.run(message, thread_id=thread_id)
             
             logger.info(f"Response generated successfully")

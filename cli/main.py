@@ -1,10 +1,11 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from agent.agent import WeatherAgent
+from agent.agent import MyAgent
 
-def main():
-    agent = WeatherAgent()
+
+async def main():
+    agent = await MyAgent.create() 
 
     print("Assistant Agent 已启动，输入 q 退出")
 
@@ -14,7 +15,7 @@ def main():
         if user_input.lower() == "q":
             break
 
-        result = agent.run(user_input)
+        result = agent.arun(user_input)
         print(result)
 
 

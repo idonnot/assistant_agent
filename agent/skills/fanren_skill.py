@@ -1,6 +1,7 @@
-from agent.tools.character_classifier.classifier_tool import classify_fanren_character
-from agent.tools.rag_tool import search_fanren_knowledge
+from agent.services.character_classifier.classifier_tool import classify_fanren_character
+from agent.services.rag_tool import search_fanren_knowledge
 from langchain.tools import tool
+from ..schemas.tool_schema import ToolResponse
 
 @tool("fanren skill")
 def classify_characters_and_get_fanren_knowledge(query:str) -> dict:
@@ -26,7 +27,11 @@ def classify_characters_and_get_fanren_knowledge(query:str) -> dict:
     classify_res = classify_fanren_character(query)
 
     if "error" in classify_res:
-        return classify_res
+        return ToolResponse(
+                status="error",
+                message=classify_res['error'],
+                data=None
+            ).model_dump_model_dump_json()
     else:
         return search_fanren_knowledge(query)
     

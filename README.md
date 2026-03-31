@@ -18,7 +18,7 @@ Weather Agent是一个多模块协作系统，当用户查询天气时：
 └────────┬────────┘
          │
     ┌────▼────────┐
-    │ WeatherAgent│ (LLM agent)
+    │ MyAgent│ (LLM agent)
     └────┬────────┘
          │
     ┌────┴──────────────┬──────────────────┐
@@ -58,7 +58,7 @@ Weather Agent是一个多模块协作系统，当用户查询天气时：
 
 ### 2. **智能Agent系统** (`agent/`)
 
-- **WeatherAgent** (`agent.py`)：
+- **MyAgent** (`agent.py`)：
   - 基于LLM的对话代理
   - 集成两个专用工具
   - 支持对话历史记录
@@ -155,9 +155,9 @@ python main.py
 ### 作为库使用
 
 ```python
-from agent.agent import WeatherAgent
+from agent.agent import MyAgent
 
-agent = WeatherAgent()
+agent = MyAgent()
 
 # 单次查询
 message = "杭州天气"
@@ -198,7 +198,7 @@ weather_agent/
 │   └── settings.py                 # 全局配置
 ├── agent/
 │   ├── __init__.py
-│   ├── agent.py                    # WeatherAgent主类
+│   ├── agent.py                    # MyAgent主类
 │   ├── simple_weather_agent.py     # 简化版本
 │   └── tools/
 │       ├── __init__.py

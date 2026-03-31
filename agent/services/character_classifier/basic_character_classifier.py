@@ -1,5 +1,5 @@
 from typing import Tuple, Optional, List, Dict
-from agent.tools.character_classifier.character_loader import get_character_loader
+from agent.services.character_classifier.character_loader import get_character_loader
 
 class BasicCharacterClassifier:
     """

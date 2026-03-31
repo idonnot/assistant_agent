@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from agent.tools.character_classifier.basic_character_classifier import BasicCharacterClassifier
+from agent.services.character_classifier.basic_character_classifier import BasicCharacterClassifier
 
 def test_basic_character_classifier():
     classifier = BasicCharacterClassifier()
